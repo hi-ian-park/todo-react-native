@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
+  Alert,
   StyleSheet,
   Text,
   View,
@@ -11,34 +12,62 @@ import {
   ScrollView,
 } from "react-native";
 import { theme } from "./colors";
+import { FontAwesome } from "@expo/vector-icons";
 
 const STORAGE_KEY = "@toDOs";
 
 export default function App() {
-  const [isWorking, setIsWorking] = useState(true);
-  const [text, setText] = useState("");
+  const [nowTap, setNowTap] = useState("work");
+  const [userInput, setUserInput] = useState("");
   const [toDos, setToDos] = useState({});
-  const travel = () => setIsWorking(false);
-  const work = () => setIsWorking(true);
-  const onChangeText = (payload) => setText(payload);
+  const travel = () => setNowTap("travel");
+  const work = () => setNowTap("work");
+  const onChangeText = (payload) => setUserInput(payload);
 
   const saveToDos = async (toSave) => {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   };
 
   const loadToDos = async () => {
-    const s = await AsyncStorage.getItem(STORAGE_KEY);
-    setToDos(JSON.parse(s));
+    try {
+      const toDoItems = (await AsyncStorage.getItem(STORAGE_KEY)) || {};
+      setToDos(JSON.parse(toDoItems));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const addTodo = async () => {
-    if (text === "") return;
+  const addToDo = async () => {
+    if (userInput === "") return;
     // save to do
-    const newToDos = { ...toDos, [Date.now()]: { text, isWorking } };
-    setText("");
-    await saveToDos(newToDos);
+    const newToDos = {
+      ...toDos,
+      [Date.now()]: { userInput, nowTap, done: false },
+    };
     setToDos(newToDos);
+    await saveToDos(newToDos);
+    setUserInput("");
   };
+
+  const deleteToDo = async (key) => {
+    Alert.alert("Delete To Do", "Are you sure?", [
+      { text: "Cancel" },
+      {
+        text: "I'm sure",
+        style: "destructive",
+        onPress: deleteItem,
+      },
+    ]);
+
+    async function deleteItem() {
+      const newToDos = { ...toDos };
+      delete newToDos[key];
+      setToDos(newToDos);
+      await saveToDos(newToDos);
+    }
+  };
+
+  console.log(toDos);
 
   useEffect(() => {
     loadToDos();
@@ -53,7 +82,7 @@ export default function App() {
             <Text
               style={{
                 ...styles.buttonText,
-                color: isWorking ? theme.white : theme.grey,
+                color: nowTap === "work" ? theme.white : theme.grey,
               }}
             >
               Work
@@ -63,7 +92,7 @@ export default function App() {
             <Text
               style={{
                 ...styles.buttonText,
-                color: isWorking ? theme.grey : theme.white,
+                color: nowTap === "travel" ? theme.white : theme.grey,
               }}
             >
               Travel
@@ -71,19 +100,24 @@ export default function App() {
           </TouchableOpacity>
         </View>
         <TextInput
-          placeholder={isWorking ? "Add a To Do" : "Where do you want to go"}
+          placeholder={
+            nowTap === "work" ? "Add a To Do" : "Where do you want to go"
+          }
           onChangeText={onChangeText}
-          value={text}
+          value={userInput}
           style={styles.input}
           returnKeyType="done"
-          onSubmitEditing={addTodo}
+          onSubmitEditing={addToDo}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           {Object.keys(toDos).map(
             (key) =>
-              toDos[key].isWorking === isWorking && (
+              toDos[key].nowTap === nowTap && (
                 <View style={styles.toDo} key={key}>
-                  <Text style={styles.toDoText}>{toDos[key].text}</Text>
+                  <Text style={styles.toDoText}>{toDos[key].userInput}</Text>
+                  <TouchableOpacity onPress={() => deleteToDo(key)}>
+                    <FontAwesome name="trash" size={20} color="#ff4747" />
+                  </TouchableOpacity>
                 </View>
               )
           )}
@@ -118,6 +152,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   toDo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: theme.toDoBackground,
     paddingHorizontal: 30,
     paddingVertical: 20,
