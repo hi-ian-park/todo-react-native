@@ -22,7 +22,6 @@ const STORAGE_KEY = "@toDOs";
 export default function App() {
   const [nowTap, setNowTap] = useState("work");
   const [userInput, setUserInput] = useState("");
-  const [isModify, setIsModify] = useState(false);
   const [toDos, setToDos] = useState({});
   const travel = () => setNowTap("travel");
   const work = () => setNowTap("work");
@@ -31,14 +30,18 @@ export default function App() {
   const saveToDos = async (toSave) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const loadToDos = async () => {
     try {
       const toDoItems = (await AsyncStorage.getItem(STORAGE_KEY)) || {};
       setToDos(JSON.parse(toDoItems));
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const addToDo = async () => {
@@ -70,6 +73,7 @@ export default function App() {
   };
 
   const deleteToDo = async (key) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Alert.alert("Delete To Do", "Are you sure?", [
       { text: "Cancel" },
       {
@@ -85,6 +89,15 @@ export default function App() {
       setToDos(newToDos);
       await saveToDos(newToDos);
     }
+  };
+
+  const modifyToDo = async ({ key, userInput }) => {
+    const newToDos = {
+      ...toDos,
+      [key]: { ...toDos[key], userInput },
+    };
+    setToDos(newToDos);
+    await saveToDos(newToDos);
   };
 
   useEffect(() => {
@@ -117,6 +130,7 @@ export default function App() {
                   toDos={toDos[key]}
                   toggleTodoState={toggleTodoState}
                   deleteToDo={deleteToDo}
+                  modifyToDo={modifyToDo}
                 />
               )
             );
@@ -164,12 +178,8 @@ export const styles = StyleSheet.create({
   doneIcon: {
     marginRight: 20,
   },
-  toDoLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   toDoText: {
+    flex: 1,
     fontSize: 16,
     fontWeight: "500",
     color: theme.white,
