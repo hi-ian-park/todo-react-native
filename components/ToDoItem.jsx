@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "../colors";
 
-const ToDoItem = ({ id, styles, toDos, toggleTodoState }) => {
+const ToDoItem = ({ id, styles, toDos, toggleTodoState, deleteToDo }) => {
   const { isDone, userInput } = toDos;
   return (
     <View
