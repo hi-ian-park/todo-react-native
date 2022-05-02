@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
+import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Alert,
@@ -10,31 +11,34 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Vibration,
 } from "react-native";
 import { theme } from "./colors";
-import { FontAwesome } from "@expo/vector-icons";
+import Header from "./components/Header";
+import ToDoItem from "./components/ToDoItem";
 
 const STORAGE_KEY = "@toDOs";
 
 export default function App() {
   const [nowTap, setNowTap] = useState("work");
   const [userInput, setUserInput] = useState("");
+  const [isModify, setIsModify] = useState(false);
   const [toDos, setToDos] = useState({});
   const travel = () => setNowTap("travel");
   const work = () => setNowTap("work");
   const onChangeText = (payload) => setUserInput(payload);
 
   const saveToDos = async (toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    } catch (error) {}
   };
 
   const loadToDos = async () => {
     try {
       const toDoItems = (await AsyncStorage.getItem(STORAGE_KEY)) || {};
       setToDos(JSON.parse(toDoItems));
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   const addToDo = async () => {
@@ -42,11 +46,27 @@ export default function App() {
     // save to do
     const newToDos = {
       ...toDos,
-      [Date.now()]: { userInput, nowTap, done: false },
+      [Date.now()]: { userInput, nowTap, isDone: false },
     };
     setToDos(newToDos);
     await saveToDos(newToDos);
     setUserInput("");
+  };
+
+  const toggleTodoState = async (key) => {
+    const newToDos = {
+      ...toDos,
+      [key]: { ...toDos[key], isDone: !toDos[key].isDone },
+    };
+    setToDos(newToDos);
+    await saveToDos(newToDos);
+
+    const beforeBatchToDoStatus = !toDos[key].isDone;
+    if (beforeBatchToDoStatus) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   };
 
   const deleteToDo = async (key) => {
@@ -67,8 +87,6 @@ export default function App() {
     }
   };
 
-  console.log(toDos);
-
   useEffect(() => {
     loadToDos();
   }, []);
@@ -77,28 +95,7 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="light" />
       <SafeAreaView style={styles.defaultFlex}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={work}>
-            <Text
-              style={{
-                ...styles.buttonText,
-                color: nowTap === "work" ? theme.white : theme.grey,
-              }}
-            >
-              Work
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={travel}>
-            <Text
-              style={{
-                ...styles.buttonText,
-                color: nowTap === "travel" ? theme.white : theme.grey,
-              }}
-            >
-              Travel
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <Header styles={styles} nowTap={nowTap} travel={travel} work={work} />
         <TextInput
           placeholder={
             nowTap === "work" ? "Add a To Do" : "Where do you want to go"
@@ -110,24 +107,27 @@ export default function App() {
           onSubmitEditing={addToDo}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
-          {Object.keys(toDos).map(
-            (key) =>
+          {Object.keys(toDos).map((key) => {
+            return (
               toDos[key].nowTap === nowTap && (
-                <View style={styles.toDo} key={key}>
-                  <Text style={styles.toDoText}>{toDos[key].userInput}</Text>
-                  <TouchableOpacity onPress={() => deleteToDo(key)}>
-                    <FontAwesome name="trash" size={20} color="#ff4747" />
-                  </TouchableOpacity>
-                </View>
+                <ToDoItem
+                  key={key}
+                  id={key}
+                  styles={styles}
+                  toDos={toDos[key]}
+                  toggleTodoState={toggleTodoState}
+                  deleteToDo={deleteToDo}
+                />
               )
-          )}
+            );
+          })}
         </ScrollView>
       </SafeAreaView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   defaultFlex: { flex: 1 },
   container: {
     flex: 1,
@@ -160,6 +160,14 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderRadius: 15,
     marginBottom: 10,
+  },
+  doneIcon: {
+    marginRight: 20,
+  },
+  toDoLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   toDoText: {
     fontSize: 16,

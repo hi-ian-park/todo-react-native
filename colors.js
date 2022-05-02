@@ -3,4 +3,5 @@ export const theme = {
   grey: "#3A3D40",
   white: "#fefefe",
   toDoBackground: "#5c5c60",
+  doneTodo: "#5C7653",
 };
