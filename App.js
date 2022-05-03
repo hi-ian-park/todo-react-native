@@ -5,14 +5,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Alert,
   StyleSheet,
-  Text,
   View,
   SafeAreaView,
-  TouchableOpacity,
   TextInput,
   ScrollView,
-  Vibration,
 } from "react-native";
+import { motion, AnimateSharedLayout, AnimatePresence } from "framer-motion";
 import { theme } from "./colors";
 import Header from "./components/Header";
 import ToDoItem from "./components/ToDoItem";
@@ -44,18 +42,6 @@ export default function App() {
     }
   };
 
-  const addToDo = async () => {
-    if (userInput === "") return;
-    // save to do
-    const newToDos = {
-      ...toDos,
-      [Date.now()]: { userInput, nowTap, isDone: false },
-    };
-    setToDos(newToDos);
-    await saveToDos(newToDos);
-    setUserInput("");
-  };
-
   const toggleTodoState = async (key) => {
     const newToDos = {
       ...toDos,
@@ -72,8 +58,20 @@ export default function App() {
     }
   };
 
+  const addToDo = async () => {
+    if (userInput === "") return;
+    // save to do
+    const newToDos = {
+      ...toDos,
+      [Date.now()]: { userInput, nowTap, isDone: false },
+    };
+    setToDos(newToDos);
+    await saveToDos(newToDos);
+    setUserInput("");
+  };
+
   const deleteToDo = async (key) => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     Alert.alert("Delete To Do", "Are you sure?", [
       { text: "Cancel" },
       {
@@ -127,7 +125,7 @@ export default function App() {
                   key={key}
                   id={key}
                   styles={styles}
-                  toDos={toDos[key]}
+                  toDo={toDos[key]}
                   toggleTodoState={toggleTodoState}
                   deleteToDo={deleteToDo}
                   modifyToDo={modifyToDo}
@@ -157,6 +155,10 @@ export const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "600",
   },
+  icon: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
   input: {
     backgroundColor: theme.white,
     paddingVertical: 15,
@@ -170,13 +172,13 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: theme.toDoBackground,
-    paddingHorizontal: 30,
-    paddingVertical: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
     borderRadius: 15,
     marginBottom: 10,
   },
   doneIcon: {
-    marginRight: 20,
+    marginRight: 5,
   },
   toDoText: {
     flex: 1,

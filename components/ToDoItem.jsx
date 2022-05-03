@@ -1,39 +1,25 @@
 import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { TouchableOpacity, TextInput } from "react-native";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "../colors";
 
 const ToDoItem = ({
-  id,
+  id: key,
   styles,
-  toDos,
+  toDo,
   toggleTodoState,
   deleteToDo,
   modifyToDo,
 }) => {
-  const { isDone, userInput } = toDos;
-  const [text, setText] = useState(userInput);
+  const { isDone, userInput } = toDo;
   const refInput = useRef(null);
 
   const pressModifyButton = () => focusInput(true);
-  // blur되었을 때 자동으로 내용이 state에 올라가야함
-  const blurModifyButton = () => {
-    focusInput(false);
-    modifyToDo({ key: id, userInput: text });
-  };
+  const blurModifyButton = () => focusInput(false);
 
   const focusInput = (nowState) => {
     if (nowState) refInput.current.focus();
-    return;
   };
-
-  const onChangeText = (payload) => setText(payload);
 
   return (
     <TouchableOpacity
@@ -46,25 +32,30 @@ const ToDoItem = ({
     >
       <TouchableOpacity
         style={styles.doneIcon}
-        onPress={() => toggleTodoState(id)}
+        onPress={() => toggleTodoState(key)}
       >
         <MaterialCommunityIcons
+          style={styles.icon}
           name={isDone ? "checkbox-marked" : "checkbox-blank-outline"}
           size={24}
           color="#62BB47"
         />
       </TouchableOpacity>
-      {/* {textArea[isModifying ? "modify" : "normal"]} */}
       <TextInput
-        value={text}
-        onChangeText={onChangeText}
+        value={userInput}
+        onChangeText={(payload) => modifyToDo({ key, userInput: payload })}
         pointerEvents="none"
         onBlur={blurModifyButton}
         style={styles.toDoText}
         ref={refInput}
       />
-      <TouchableOpacity onPress={() => deleteToDo(id)}>
-        <FontAwesome name="trash" size={20} color="#ff4747" />
+      <TouchableOpacity onPress={() => deleteToDo(key)}>
+        <FontAwesome
+          style={styles.icon}
+          name="trash"
+          size={20}
+          color="#ff4747"
+        />
       </TouchableOpacity>
     </TouchableOpacity>
   );
