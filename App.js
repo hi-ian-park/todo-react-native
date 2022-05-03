@@ -10,7 +10,6 @@ import {
   TextInput,
   ScrollView,
 } from "react-native";
-import { motion, AnimateSharedLayout, AnimatePresence } from "framer-motion";
 import { theme } from "./colors";
 import Header from "./components/Header";
 import ToDoItem from "./components/ToDoItem";
@@ -101,6 +100,18 @@ export default function App() {
   useEffect(() => {
     loadToDos();
   }, []);
+
+  const renderItem = ({ item }) => (
+    <ToDoItem
+      key={key}
+      id={key}
+      styles={styles}
+      toDo={toDos[key]}
+      toggleTodoState={toggleTodoState}
+      deleteToDo={deleteToDo}
+      modifyToDo={modifyToDo}
+    />
+  );
 
   return (
     <View style={styles.container}>
