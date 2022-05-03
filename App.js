@@ -101,18 +101,6 @@ export default function App() {
     loadToDos();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <ToDoItem
-      key={key}
-      id={key}
-      styles={styles}
-      toDo={toDos[key]}
-      toggleTodoState={toggleTodoState}
-      deleteToDo={deleteToDo}
-      modifyToDo={modifyToDo}
-    />
-  );
-
   return (
     <View style={styles.container}>
       <StatusBar style="light" />

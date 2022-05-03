@@ -3,7 +3,14 @@ import { View, TextInput } from "react-native";
 import Modal from "react-native-modal";
 import { styles } from "../../App";
 
-const ModificationModal = ({ id: key, toDo, modalInfo, setModalInfo }) => {
+const ModificationModal = ({
+  id,
+  toDo,
+  modalInfo,
+  setModalInfo,
+  modifyToDo,
+}) => {
+  console.log(id);
   const { userInput } = toDo;
   return (
     <View style={{ flex: 1 }}>
