@@ -15,6 +15,10 @@ import Header from "./components/Header";
 import ToDoItem from "./components/ToDoItem";
 
 const STORAGE_KEY = "@toDOs";
+const INPUT_PLACEHOLDER = {
+  work: "Add a To Do",
+  travel: "Where do you want to go?",
+};
 
 export default function App() {
   const [nowTap, setNowTap] = useState("work");
@@ -107,9 +111,7 @@ export default function App() {
       <SafeAreaView style={styles.defaultFlex}>
         <Header styles={styles} nowTap={nowTap} travel={travel} work={work} />
         <TextInput
-          placeholder={
-            nowTap === "work" ? "Add a To Do" : "Where do you want to go"
-          }
+          placeholder={INPUT_PLACEHOLDER[nowTap]}
           onChangeText={onChangeText}
           value={userInput}
           style={styles.input}
@@ -123,7 +125,6 @@ export default function App() {
                 <ToDoItem
                   key={key}
                   id={key}
-                  styles={styles}
                   toDo={toDos[key]}
                   toggleTodoState={toggleTodoState}
                   deleteToDo={deleteToDo}
@@ -154,10 +155,7 @@ export const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "600",
   },
-  icon: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
+
   input: {
     backgroundColor: theme.white,
     paddingVertical: 15,
@@ -165,24 +163,5 @@ export const styles = StyleSheet.create({
     borderRadius: 30,
     marginVertical: 20,
     fontSize: 16,
-  },
-  toDo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: theme.toDoBackground,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    borderRadius: 15,
-    marginBottom: 10,
-  },
-  doneIcon: {
-    marginRight: 5,
-  },
-  toDoText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "500",
-    color: theme.white,
   },
 });
