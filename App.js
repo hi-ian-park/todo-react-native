@@ -38,6 +38,7 @@ export default function App() {
     };
     setToDos(newToDo);
     await saveToDos(newToDo);
+    setUserInput("");
   };
 
   const saveToDos = async (toSave) => {
@@ -60,23 +61,28 @@ export default function App() {
     }
   };
 
-  // const toggleTodoState = async (key) => {
-  //   const newToDos = toDos.map((toDo) => {
-  //     if (toDo.id === key) {
-  //       return (toDo.isDone = !toDo.isDone);
-  //     }
-  //   });
+  const toggleTodoState = async (key) => {
+    const newToDos = {
+      ...toDos,
+      [nowTap]: toDos[nowTap].map((toDo) => {
+        if (toDo.id === key) {
+          return { ...toDo, isDone: !toDo.isDone };
+        }
+        return toDo;
+      }),
+    };
 
-  //   setToDos(newToDos);
-  //   await saveToDos(newToDos);
+    setToDos(newToDos);
+    await saveToDos(newToDos);
 
-  //   const beforeBatchToDoStatus = !toDos[key].isDone;
-  //   if (beforeBatchToDoStatus) {
-  //     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  //   } else {
-  //     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  //   }
-  // };
+    const beforeBatchToDoStatus = !toDos[nowTap].find((toDo) => toDo.id === key)
+      .isDone;
+    if (beforeBatchToDoStatus) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+  };
 
   // const addToDo = async () => {
   //   if (userInput === "") return;
@@ -121,14 +127,22 @@ export default function App() {
     loadToDos();
   }, []);
 
-  console.log(toDos);
-
   const toDoList = {
     work: toDos.work.map((toDo) => (
-      <ToDoItem id={toDo.id} key={toDo.id} toDo={toDo} />
+      <ToDoItem
+        id={toDo.id}
+        key={toDo.id}
+        toDo={toDo}
+        toggleTodoState={toggleTodoState}
+      />
     )),
     travel: toDos.travel.map((toDo) => (
-      <ToDoItem id={toDo.id} key={toDo.id} toDo={toDo} />
+      <ToDoItem
+        id={toDo.id}
+        key={toDo.id}
+        toDo={toDo}
+        toggleTodoState={toggleTodoState}
+      />
     )),
   };
 
