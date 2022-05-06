@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { theme } from "../colors";
 
-const Header = ({ nowTap, styles, work, travel, ...props }) => {
+const TabMenu = ({ nowTap, styles, work, travel, ...props }) => {
   return (
     <View style={styles.header}>
       <TouchableOpacity onPress={work}>
@@ -29,4 +29,4 @@ const Header = ({ nowTap, styles, work, travel, ...props }) => {
   );
 };
 
-export default Header;
+export default TabMenu;

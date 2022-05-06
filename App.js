@@ -11,10 +11,10 @@ import {
   ScrollView,
 } from "react-native";
 import { theme } from "./colors";
-import Header from "./components/Header";
+import TabMenu from "./components/TabMenu";
 import ToDoItem from "./components/ToDoItem";
 
-const STORAGE_KEY = "@toDOs";
+const STORAGE_KEY = "@toDos";
 const INPUT_PLACEHOLDER = {
   work: "Add a To Do",
   travel: "Where do you want to go?",
@@ -23,10 +23,22 @@ const INPUT_PLACEHOLDER = {
 export default function App() {
   const [nowTap, setNowTap] = useState("work");
   const [userInput, setUserInput] = useState("");
-  const [toDos, setToDos] = useState({});
+  const [toDos, setToDos] = useState({ work: [], travel: [] });
   const travel = () => setNowTap("travel");
   const work = () => setNowTap("work");
   const onChangeText = (payload) => setUserInput(payload);
+
+  const addToDo = async () => {
+    const newToDo = {
+      ...toDos,
+      [nowTap]: [
+        ...toDos[nowTap],
+        { id: Date.now(), userInput, isDone: false },
+      ],
+    };
+    setToDos(newToDo);
+    await saveToDos(newToDo);
+  };
 
   const saveToDos = async (toSave) => {
     try {
@@ -38,78 +50,93 @@ export default function App() {
 
   const loadToDos = async () => {
     try {
-      const toDoItems = (await AsyncStorage.getItem(STORAGE_KEY)) || {};
+      const toDoItems = (await AsyncStorage.getItem(STORAGE_KEY)) || {
+        work: [],
+        travel: [],
+      };
       setToDos(JSON.parse(toDoItems));
     } catch (error) {
       console.log(error);
     }
   };
 
-  const toggleTodoState = async (key) => {
-    const newToDos = {
-      ...toDos,
-      [key]: { ...toDos[key], isDone: !toDos[key].isDone },
-    };
-    setToDos(newToDos);
-    await saveToDos(newToDos);
+  // const toggleTodoState = async (key) => {
+  //   const newToDos = toDos.map((toDo) => {
+  //     if (toDo.id === key) {
+  //       return (toDo.isDone = !toDo.isDone);
+  //     }
+  //   });
 
-    const beforeBatchToDoStatus = !toDos[key].isDone;
-    if (beforeBatchToDoStatus) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-  };
+  //   setToDos(newToDos);
+  //   await saveToDos(newToDos);
 
-  const addToDo = async () => {
-    if (userInput === "") return;
-    // save to do
-    const newToDos = {
-      ...toDos,
-      [Date.now()]: { userInput, nowTap, isDone: false },
-    };
-    setToDos(newToDos);
-    await saveToDos(newToDos);
-    setUserInput("");
-  };
+  //   const beforeBatchToDoStatus = !toDos[key].isDone;
+  //   if (beforeBatchToDoStatus) {
+  //     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  //   } else {
+  //     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  //   }
+  // };
 
-  const deleteToDo = async (key) => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    Alert.alert("Delete To Do", "Are you sure?", [
-      { text: "Cancel" },
-      {
-        text: "I'm sure",
-        style: "destructive",
-        onPress: deleteItem,
-      },
-    ]);
+  // const addToDo = async () => {
+  //   if (userInput === "") return;
+  //   const newToDos = [
+  //     ...toDos,
+  //     { id: Date.now(), userInput, nowTap, isDone: false },
+  //   ];
+  //   setToDos(newToDos);
+  //   await saveToDos(newToDos);
+  //   setUserInput("");
+  // };
 
-    async function deleteItem() {
-      const newToDos = { ...toDos };
-      delete newToDos[key];
-      setToDos(newToDos);
-      await saveToDos(newToDos);
-    }
-  };
+  // const deleteToDo = async (key) => {
+  //   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+  //   Alert.alert("Delete To Do", "Are you sure?", [
+  //     { text: "Cancel" },
+  //     {
+  //       text: "I'm sure",
+  //       style: "destructive",
+  //       onPress: deleteItem,
+  //     },
+  //   ]);
 
-  const modifyToDo = async ({ key, userInput }) => {
-    const newToDos = {
-      ...toDos,
-      [key]: { ...toDos[key], userInput },
-    };
-    setToDos(newToDos);
-    await saveToDos(newToDos);
-  };
+  //   async function deleteItem() {
+  //     const newToDos = { ...toDos };
+  //     delete newToDos[key];
+  //     setToDos(newToDos);
+  //     await saveToDos(newToDos);
+  //   }
+  // };
+
+  // const modifyToDo = async ({ key, userInput }) => {
+  //   const newToDos = {
+  //     ...toDos,
+  //     [key]: { ...toDos[key], userInput },
+  //   };
+  //   setToDos(newToDos);
+  //   await saveToDos(newToDos);
+  // };
 
   useEffect(() => {
     loadToDos();
   }, []);
 
+  console.log(toDos);
+
+  const toDoList = {
+    work: toDos.work.map((toDo) => (
+      <ToDoItem id={toDo.id} key={toDo.id} toDo={toDo} />
+    )),
+    travel: toDos.travel.map((toDo) => (
+      <ToDoItem id={toDo.id} key={toDo.id} toDo={toDo} />
+    )),
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
       <SafeAreaView style={styles.defaultFlex}>
-        <Header styles={styles} nowTap={nowTap} travel={travel} work={work} />
+        <TabMenu styles={styles} nowTap={nowTap} travel={travel} work={work} />
         <TextInput
           placeholder={INPUT_PLACEHOLDER[nowTap]}
           onChangeText={onChangeText}
@@ -119,20 +146,7 @@ export default function App() {
           onSubmitEditing={addToDo}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
-          {Object.keys(toDos).map((key) => {
-            return (
-              toDos[key].nowTap === nowTap && (
-                <ToDoItem
-                  key={key}
-                  id={key}
-                  toDo={toDos[key]}
-                  toggleTodoState={toggleTodoState}
-                  deleteToDo={deleteToDo}
-                  modifyToDo={modifyToDo}
-                />
-              )
-            );
-          })}
+          {toDoList[nowTap]}
         </ScrollView>
       </SafeAreaView>
     </View>

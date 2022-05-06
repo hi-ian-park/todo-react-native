@@ -54,15 +54,6 @@ const ToDoItem = ({
           />
         </TouchableOpacity>
       </Pressable>
-      <ModificationModal
-        id={modalInfo.key}
-        styles={styles}
-        toDo={toDo}
-        modalInfo={modalInfo}
-        setModalInfo={setModalInfo}
-        modifyToDo={modifyToDo}
-        toggleTodoState={toggleTodoState}
-      />
     </>
   );
 };
