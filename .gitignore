@@ -15,3 +15,6 @@ web-build/
 
 # asdf tool version
 .tool-versions
+
+# mock
+assets/mock
