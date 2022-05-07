@@ -7,22 +7,16 @@ import {
   StyleSheet,
 } from "react-native";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-import { theme } from "../colors";
-import ModificationModal from "./Modal/ModificationModal";
+import { theme } from "../../colors";
+import ModificationModal from "../Modal/ModificationModal";
 
-const ToDoItem = ({
-  id: key,
-  toDo,
-  toggleTodoState,
-  deleteToDo,
-  modifyToDo,
-}) => {
+const Item = ({ id: key, toDo, toggleToDoState, deleteToDo, modifyToDo }) => {
   const [modalInfo, setModalInfo] = useState({ visible: false, key: "" });
   const { isDone, userInput } = toDo;
   const pressModifyButton = () => {
     setModalInfo({ visible: true, key: key });
   };
-
+  console.log(key);
   return (
     <>
       <Pressable
@@ -35,7 +29,7 @@ const ToDoItem = ({
       >
         <TouchableOpacity
           style={styles.doneIcon}
-          onPress={() => toggleTodoState(key)}
+          onPress={() => toggleToDoState(key)}
         >
           <MaterialCommunityIcons
             style={styles.icon}
@@ -58,7 +52,7 @@ const ToDoItem = ({
   );
 };
 
-export default ToDoItem;
+export default Item;
 
 const styles = StyleSheet.create({
   toDo: {

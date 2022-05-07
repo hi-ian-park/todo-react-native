@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { theme } from "./colors";
 import TabMenu from "./components/TabMenu";
-import ToDoItem from "./components/ToDoItem";
+import ToDoList from "./components/ToDo/List";
 
 const STORAGE_KEY = "@toDos";
 const INPUT_PLACEHOLDER = {
@@ -61,7 +61,7 @@ export default function App() {
     }
   };
 
-  const toggleTodoState = async (key) => {
+  const toggleToDoState = async (key) => {
     const newToDos = {
       ...toDos,
       [nowTap]: toDos[nowTap].map((toDo) => {
@@ -84,67 +84,44 @@ export default function App() {
     }
   };
 
-  // const addToDo = async () => {
-  //   if (userInput === "") return;
-  //   const newToDos = [
-  //     ...toDos,
-  //     { id: Date.now(), userInput, nowTap, isDone: false },
-  //   ];
-  //   setToDos(newToDos);
-  //   await saveToDos(newToDos);
-  //   setUserInput("");
-  // };
+  const deleteToDo = async (key) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    Alert.alert("Delete To Do", "Are you sure?", [
+      { text: "Cancel" },
+      {
+        text: "I'm sure",
+        style: "destructive",
+        onPress: deleteItem,
+      },
+    ]);
 
-  // const deleteToDo = async (key) => {
-  //   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-  //   Alert.alert("Delete To Do", "Are you sure?", [
-  //     { text: "Cancel" },
-  //     {
-  //       text: "I'm sure",
-  //       style: "destructive",
-  //       onPress: deleteItem,
-  //     },
-  //   ]);
+    async function deleteItem() {
+      const newToDos = {
+        ...toDos,
+        [nowTap]: toDos[nowTap].filter((toDo) => toDo.id !== key),
+      };
+      setToDos(newToDos);
+      await saveToDos(newToDos);
+    }
+  };
 
-  //   async function deleteItem() {
-  //     const newToDos = { ...toDos };
-  //     delete newToDos[key];
-  //     setToDos(newToDos);
-  //     await saveToDos(newToDos);
-  //   }
-  // };
-
-  // const modifyToDo = async ({ key, userInput }) => {
-  //   const newToDos = {
-  //     ...toDos,
-  //     [key]: { ...toDos[key], userInput },
-  //   };
-  //   setToDos(newToDos);
-  //   await saveToDos(newToDos);
-  // };
+  const modifyToDo = async ({ key, userInput }) => {
+    const newToDos = {
+      ...toDos,
+      [nowTap]: toDos[nowTap].map((toDo) => {
+        if (toDo.id === key) {
+          return { ...toDo, userInput };
+        }
+        return toDo;
+      }),
+    };
+    setToDos(newToDos);
+    await saveToDos(newToDos);
+  };
 
   useEffect(() => {
     loadToDos();
   }, []);
-
-  const toDoList = {
-    work: toDos.work.map((toDo) => (
-      <ToDoItem
-        id={toDo.id}
-        key={toDo.id}
-        toDo={toDo}
-        toggleTodoState={toggleTodoState}
-      />
-    )),
-    travel: toDos.travel.map((toDo) => (
-      <ToDoItem
-        id={toDo.id}
-        key={toDo.id}
-        toDo={toDo}
-        toggleTodoState={toggleTodoState}
-      />
-    )),
-  };
 
   return (
     <View style={styles.container}>
@@ -160,7 +137,13 @@ export default function App() {
           onSubmitEditing={addToDo}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
-          {toDoList[nowTap]}
+          <ToDoList
+            toDos={toDos}
+            toggleToDoState={toggleToDoState}
+            modifyToDo={modifyToDo}
+            deleteToDo={deleteToDo}
+            nowTap={nowTap}
+          />
         </ScrollView>
       </SafeAreaView>
     </View>
