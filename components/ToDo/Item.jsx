@@ -16,7 +16,6 @@ const Item = ({ id: key, toDo, toggleToDoState, deleteToDo, modifyToDo }) => {
   const pressModifyButton = () => {
     setModalInfo({ visible: true, key: key });
   };
-  console.log(key);
   return (
     <>
       <Pressable

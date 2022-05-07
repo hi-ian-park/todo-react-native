@@ -21,18 +21,17 @@ const INPUT_PLACEHOLDER = {
 };
 
 export default function App() {
-  const [nowTap, setNowTap] = useState("work");
+  const [currentTap, setCurrentTap] = useState("work");
   const [userInput, setUserInput] = useState("");
   const [toDos, setToDos] = useState({ work: [], travel: [] });
-  const travel = () => setNowTap("travel");
-  const work = () => setNowTap("work");
+  const changeCurrentTap = (value) => setCurrentTap(value);
   const onChangeText = (payload) => setUserInput(payload);
 
   const addToDo = async () => {
     const newToDo = {
       ...toDos,
-      [nowTap]: [
-        ...toDos[nowTap],
+      [currentTap]: [
+        ...toDos[currentTap],
         { id: Date.now(), userInput, isDone: false },
       ],
     };
@@ -64,7 +63,7 @@ export default function App() {
   const toggleToDoState = async (key) => {
     const newToDos = {
       ...toDos,
-      [nowTap]: toDos[nowTap].map((toDo) => {
+      [currentTap]: toDos[currentTap].map((toDo) => {
         if (toDo.id === key) {
           return { ...toDo, isDone: !toDo.isDone };
         }
@@ -75,8 +74,9 @@ export default function App() {
     setToDos(newToDos);
     await saveToDos(newToDos);
 
-    const beforeBatchToDoStatus = !toDos[nowTap].find((toDo) => toDo.id === key)
-      .isDone;
+    const beforeBatchToDoStatus = !toDos[currentTap].find(
+      (toDo) => toDo.id === key
+    ).isDone;
     if (beforeBatchToDoStatus) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } else {
@@ -98,7 +98,7 @@ export default function App() {
     async function deleteItem() {
       const newToDos = {
         ...toDos,
-        [nowTap]: toDos[nowTap].filter((toDo) => toDo.id !== key),
+        [currentTap]: toDos[currentTap].filter((toDo) => toDo.id !== key),
       };
       setToDos(newToDos);
       await saveToDos(newToDos);
@@ -108,7 +108,7 @@ export default function App() {
   const modifyToDo = async ({ key, userInput }) => {
     const newToDos = {
       ...toDos,
-      [nowTap]: toDos[nowTap].map((toDo) => {
+      [currentTap]: toDos[currentTap].map((toDo) => {
         if (toDo.id === key) {
           return { ...toDo, userInput };
         }
@@ -127,9 +127,13 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="light" />
       <SafeAreaView style={styles.defaultFlex}>
-        <TabMenu styles={styles} nowTap={nowTap} travel={travel} work={work} />
+        <TabMenu
+          styles={styles}
+          value={currentTap}
+          changeCurrentTap={changeCurrentTap}
+        />
         <TextInput
-          placeholder={INPUT_PLACEHOLDER[nowTap]}
+          placeholder={INPUT_PLACEHOLDER[currentTap]}
           onChangeText={onChangeText}
           value={userInput}
           style={styles.input}
@@ -138,11 +142,10 @@ export default function App() {
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <ToDoList
-            toDos={toDos}
+            toDos={toDos[currentTap]}
             toggleToDoState={toggleToDoState}
             modifyToDo={modifyToDo}
             deleteToDo={deleteToDo}
-            nowTap={nowTap}
           />
         </ScrollView>
       </SafeAreaView>

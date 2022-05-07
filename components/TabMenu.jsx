@@ -2,24 +2,24 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { theme } from "../colors";
 
-const TabMenu = ({ nowTap, styles, work, travel, ...props }) => {
+const TabMenu = ({ value, styles, changeCurrentTap, ...props }) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity onPress={work}>
+      <TouchableOpacity onPress={() => changeCurrentTap("work")}>
         <Text
           style={{
             ...styles.buttonText,
-            color: nowTap === "work" ? theme.white : theme.grey,
+            color: value === "work" ? theme.white : theme.grey,
           }}
         >
           Work
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={travel}>
+      <TouchableOpacity onPress={() => changeCurrentTap("travel")}>
         <Text
           style={{
             ...styles.buttonText,
-            color: nowTap === "travel" ? theme.white : theme.grey,
+            color: value === "travel" ? theme.white : theme.grey,
           }}
         >
           Travel

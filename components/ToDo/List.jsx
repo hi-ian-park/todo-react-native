@@ -2,10 +2,9 @@ import React from "react";
 import Item from "./Item";
 
 const List = (props) => {
-  const { toDos, nowTap } = props;
-  const nowTapToDos = toDos[nowTap];
+  const { toDos } = props;
 
-  return nowTapToDos.map((toDo) => (
+  return toDos.map((toDo) => (
     <Item key={toDo.id} id={toDo.id} toDo={toDo} {...props} />
   ));
 };
