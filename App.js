@@ -1,5 +1,5 @@
 // RN, Expo
-import { memo, useState, useEffect } from "react";
+import { memo, useState, useEffect, useCallback } from "react";
 import { Alert, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
@@ -13,19 +13,14 @@ import { color, mixins } from "./styles/theme";
 // components
 import TabMenu from "./components/TabMenu";
 import ToDoList from "./components/ToDo/List";
+import Input from "./components/ToDo/Input";
 
 const STORAGE_KEY = "@toDos";
-const INPUT_PLACEHOLDER = {
-  work: "Add a To Do",
-  travel: "Where do you want to go?",
-};
 
 function App() {
   const [currentTap, setCurrentTap] = useState("work");
-  const [userInput, setUserInput] = useState("");
   const [toDos, setToDos] = useState({ work: [], travel: [] });
   const changeCurrentTap = (value) => setCurrentTap(value);
-  const onChangeText = (payload) => setUserInput(payload);
 
   const saveToDos = async (toSave) => {
     try {
@@ -47,7 +42,7 @@ function App() {
     }
   };
 
-  const onSubmitToDo = async () => {
+  const onCreate = useCallback(async (userInput) => {
     const newToDo = {
       ...toDos,
       [currentTap]: [
@@ -57,10 +52,9 @@ function App() {
     };
     setToDos(newToDo);
     await saveToDos(newToDo);
-    setUserInput("");
-  };
+  });
 
-  const onCheck = async (key) => {
+  const onCheck = useCallback(async (key) => {
     const newToDos = {
       ...toDos,
       [currentTap]: toDos[currentTap].map((toDo) => {
@@ -81,9 +75,9 @@ function App() {
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-  };
+  });
 
-  const onDelete = async (key) => {
+  const onDelete = useCallback(async (key) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     Alert.alert("Delete To Do", "Are you sure?", [
       { text: "Cancel" },
@@ -102,9 +96,9 @@ function App() {
       setToDos(newToDos);
       await saveToDos(newToDos);
     }
-  };
+  });
 
-  const onModify = async ({ key, userInput }) => {
+  const onModify = useCallback(async ({ key, userInput }) => {
     const newToDos = {
       ...toDos,
       [currentTap]: toDos[currentTap].map((toDo) => {
@@ -116,11 +110,13 @@ function App() {
     };
     setToDos(newToDos);
     await saveToDos(newToDos);
-  };
+  });
 
   useEffect(() => {
     loadToDos();
   }, []);
+
+  console.log("render");
 
   return (
     <>
@@ -130,13 +126,7 @@ function App() {
           <StatusBar style="light" />
           <Styled.SafeContainer>
             <TabMenu value={currentTap} changeCurrentTap={changeCurrentTap} />
-            <Styled.ToDoInput
-              placeholder={INPUT_PLACEHOLDER[currentTap]}
-              onChangeText={onChangeText}
-              value={userInput}
-              returnKeyType="done"
-              onSubmitEditing={onSubmitToDo}
-            />
+            <Input currentTap={currentTap} onCreate={onCreate} />
             <ScrollView showsVerticalScrollIndicator={false}>
               <ToDoList
                 toDos={toDos[currentTap]}
