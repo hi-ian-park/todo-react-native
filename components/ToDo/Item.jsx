@@ -1,14 +1,8 @@
-import React, { useState, useRef } from "react";
-import {
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Pressable,
-  StyleSheet,
-} from "react-native";
-import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-import { theme } from "../../colors";
+import { useState, useRef } from "react";
+import { TouchableOpacity } from "react-native";
+import styled from "styled-components/native";
 import ModificationModal from "../Modal/ModificationModal";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const Item = ({ id: key, toDo, toggleToDoState, deleteToDo, modifyToDo }) => {
   const [modalInfo, setModalInfo] = useState({ visible: false, key: "" });
@@ -16,65 +10,45 @@ const Item = ({ id: key, toDo, toggleToDoState, deleteToDo, modifyToDo }) => {
   const pressModifyButton = () => {
     setModalInfo({ visible: true, key: key });
   };
+  const checkBoxName = isDone ? "checkbox-marked" : "checkbox-blank-outline";
+
   return (
     <>
-      <Pressable
-        style={
-          isDone
-            ? { ...styles.toDo, backgroundColor: theme.toDoBackground.green }
-            : styles.toDo
-        }
-        onPress={() => pressModifyButton(key)}
-      >
-        <TouchableOpacity
-          style={styles.doneIcon}
-          onPress={() => toggleToDoState(key)}
-        >
+      <Container isDone={isDone} onPress={() => pressModifyButton(key)}>
+        <CheckBox onPress={() => toggleToDoState(key)}>
           <MaterialCommunityIcons
-            style={styles.icon}
-            name={isDone ? "checkbox-marked" : "checkbox-blank-outline"}
+            name={checkBoxName}
             size={24}
             color="#62BB47"
           />
-        </TouchableOpacity>
-        <Text style={styles.toDoText}>{userInput}</Text>
+        </CheckBox>
+        <ToDoText>{userInput}</ToDoText>
         <TouchableOpacity onPress={() => deleteToDo(key)}>
-          <FontAwesome
-            style={styles.icon}
-            name="trash"
-            size={20}
-            color="#ff4747"
-          />
+          <FontAwesome name="trash" size={20} color="#ff4747" />
         </TouchableOpacity>
-      </Pressable>
+      </Container>
     </>
   );
 };
 
-export default Item;
+const Container = styled.Pressable`
+  ${({ theme }) => theme.flexBox("row", "center", "space-between")};
+  margin-bottom: 10px;
+  padding: 20px;
+  background-color: ${({ isDone, theme }) =>
+    isDone ? theme.bgGreen : theme.bgGrey};
+  border-radius: 15px;
+`;
 
-const styles = StyleSheet.create({
-  toDo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: theme.toDoBackground.grey,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    borderRadius: 15,
-    marginBottom: 10,
-  },
-  icon: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-  },
-  doneIcon: {
-    marginRight: 5,
-  },
-  toDoText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "500",
-    color: theme.white,
-  },
-});
+const CheckBox = styled.TouchableOpacity`
+  margin-right: 10px;
+`;
+
+const ToDoText = styled.Text`
+  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.white};
+`;
+
+export default Item;

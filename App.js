@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+// RN, Expo
+import { useState, useEffect } from "react";
+import { Alert, ScrollView } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import * as Haptics from "expo-haptics";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  Alert,
-  StyleSheet,
-  View,
-  SafeAreaView,
-  TextInput,
-  ScrollView,
-} from "react-native";
-import { theme } from "./colors";
+
+// style
+import styled from "styled-components/native";
+import { ThemeProvider } from "styled-components";
+import { color, mixins } from "./styles/theme";
+
+// components
 import TabMenu from "./components/TabMenu";
 import ToDoList from "./components/ToDo/List";
 
@@ -124,58 +124,50 @@ export default function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      <SafeAreaView style={styles.defaultFlex}>
-        <TabMenu
-          styles={styles}
-          value={currentTap}
-          changeCurrentTap={changeCurrentTap}
-        />
-        <TextInput
-          placeholder={INPUT_PLACEHOLDER[currentTap]}
-          onChangeText={onChangeText}
-          value={userInput}
-          style={styles.input}
-          returnKeyType="done"
-          onSubmitEditing={addToDo}
-        />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <ToDoList
-            toDos={toDos[currentTap]}
-            toggleToDoState={toggleToDoState}
-            modifyToDo={modifyToDo}
-            deleteToDo={deleteToDo}
-          />
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+    <>
+      <ThemeProvider theme={{ ...color, ...mixins }}>
+        {/* TODO: 아래 컨테이너 부분 screen 폴더로 빼기 */}
+        <Container>
+          <StatusBar style="light" />
+          <SafeContainer>
+            <TabMenu value={currentTap} changeCurrentTap={changeCurrentTap} />
+            <ToDoInput
+              placeholder={INPUT_PLACEHOLDER[currentTap]}
+              onChangeText={onChangeText}
+              value={userInput}
+              returnKeyType="done"
+              onSubmitEditing={addToDo}
+            />
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <ToDoList
+                toDos={toDos[currentTap]}
+                toggleToDoState={toggleToDoState}
+                modifyToDo={modifyToDo}
+                deleteToDo={deleteToDo}
+              />
+            </ScrollView>
+          </SafeContainer>
+        </Container>
+      </ThemeProvider>
+    </>
   );
 }
 
-export const styles = StyleSheet.create({
-  defaultFlex: { flex: 1 },
-  container: {
-    flex: 1,
-    backgroundColor: theme.background,
-    paddingHorizontal: 30,
-  },
-  header: {
-    flexDirection: "row",
-    marginTop: 20,
-    justifyContent: "space-between",
-  },
-  buttonText: {
-    fontSize: 32,
-    fontWeight: "600",
-  },
+const Container = styled.View`
+  flex: 1;
+  background-color: ${({ theme }) => theme.background};
+  padding: 30px;
+`;
 
-  input: {
-    backgroundColor: theme.white,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    marginVertical: 20,
-    fontSize: 16,
-  },
-});
+const SafeContainer = styled.SafeAreaView`
+  background-color: ${({ theme }) => theme.background};
+  flex: 1;
+`;
+
+const ToDoInput = styled.TextInput`
+  background-color: ${({ theme }) => theme.white};
+  padding: 15px 20px;
+  border-radius: 30px;
+  margin: 20px 0;
+  font-size: 16px;
+`;

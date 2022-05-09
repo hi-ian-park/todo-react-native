@@ -1,32 +1,33 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { theme } from "../colors";
+import { TouchableOpacity } from "react-native";
+import styled from "styled-components/native";
 
-const TabMenu = ({ value, styles, changeCurrentTap, ...props }) => {
+const TabMenu = ({ value, changeCurrentTap, ...props }) => {
   return (
-    <View style={styles.header}>
+    <Container>
       <TouchableOpacity onPress={() => changeCurrentTap("work")}>
-        <Text
-          style={{
-            ...styles.buttonText,
-            color: value === "work" ? theme.white : theme.grey,
-          }}
-        >
+        <TabButton name="work" value={value}>
           Work
-        </Text>
+        </TabButton>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => changeCurrentTap("travel")}>
-        <Text
-          style={{
-            ...styles.buttonText,
-            color: value === "travel" ? theme.white : theme.grey,
-          }}
-        >
+        <TabButton name="travel" value={value}>
           Travel
-        </Text>
+        </TabButton>
       </TouchableOpacity>
-    </View>
+    </Container>
   );
 };
+
+const Container = styled.View`
+  ${({ theme }) => theme.flexBox("row", "center", "space-between")};
+  margin-top: 20px;
+`;
+
+const TabButton = styled.Text`
+  font-size: 32px;
+  font-weight: 600;
+  color: ${({ value, name, theme }) =>
+    value === name ? theme.white : theme.grey};
+`;
 
 export default TabMenu;

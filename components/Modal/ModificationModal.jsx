@@ -2,13 +2,12 @@ import React from "react";
 import Modal from "react-native-modal";
 import { View, TextInput, StyleSheet } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
-import { theme } from "../../colors";
 
 const ModificationModal = ({ toDo, modalInfo, setModalInfo, modifyToDo }) => {
   const { userInput } = toDo;
   const { key } = modalInfo;
   return (
-    <View style={styles.defaultFlex}>
+    <View style={{ flex: 1 }}>
       <Modal
         isVisible={modalInfo.visible}
         avoidKeyboard={true}
@@ -38,11 +37,10 @@ const ModificationModal = ({ toDo, modalInfo, setModalInfo, modifyToDo }) => {
 export default ModificationModal;
 
 const styles = StyleSheet.create({
-  defaultFlex: { flex: 1, paddingHorizontal: 30 },
   toDo: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: theme.toDoBackground.grey,
+    // backgroundColor: theme.toDoBackground.grey,
     paddingHorizontal: 15,
     paddingVertical: 15,
     borderRadius: 15,
@@ -52,7 +50,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: "500",
-    color: theme.white,
+    // color: theme.white,
     paddingHorizontal: 10,
     paddingVertical: 10,
   },
