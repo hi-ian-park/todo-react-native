@@ -1,3 +1,4 @@
+<script src="http://localhost:8097"></script>;
 // RN, Expo
 import { memo, useState, useEffect, useCallback } from "react";
 import { Alert, ScrollView } from "react-native";
@@ -116,8 +117,6 @@ function App() {
     loadToDos();
   }, []);
 
-  console.log("render");
-
   return (
     <>
       <ThemeProvider theme={{ ...color, ...mixins }}>
@@ -142,7 +141,7 @@ function App() {
   );
 }
 
-export default memo(App);
+export default App;
 
 const Styled = {
   Container: styled.View`
