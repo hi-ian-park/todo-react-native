@@ -1,5 +1,5 @@
 // RN, Expo
-import { useState, useEffect } from "react";
+import { memo, useState, useEffect } from "react";
 import { Alert, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
@@ -20,7 +20,7 @@ const INPUT_PLACEHOLDER = {
   travel: "Where do you want to go?",
 };
 
-export default function App() {
+function App() {
   const [currentTap, setCurrentTap] = useState("work");
   const [userInput, setUserInput] = useState("");
   const [toDos, setToDos] = useState({ work: [], travel: [] });
@@ -127,11 +127,11 @@ export default function App() {
     <>
       <ThemeProvider theme={{ ...color, ...mixins }}>
         {/* TODO: 아래 컨테이너 부분 screen 폴더로 빼기 */}
-        <Container>
+        <Styled.Container>
           <StatusBar style="light" />
-          <SafeContainer>
+          <Styled.SafeContainer>
             <TabMenu value={currentTap} changeCurrentTap={changeCurrentTap} />
-            <ToDoInput
+            <Styled.ToDoInput
               placeholder={INPUT_PLACEHOLDER[currentTap]}
               onChangeText={onChangeText}
               value={userInput}
@@ -142,32 +142,36 @@ export default function App() {
               <ToDoList
                 toDos={toDos[currentTap]}
                 toggleToDoState={toggleToDoState}
+                // onToggle 로 들어갈 것
                 modifyToDo={modifyToDo}
                 deleteToDo={deleteToDo}
               />
             </ScrollView>
-          </SafeContainer>
-        </Container>
+          </Styled.SafeContainer>
+        </Styled.Container>
       </ThemeProvider>
     </>
   );
 }
 
-const Container = styled.View`
-  flex: 1;
-  background-color: ${({ theme }) => theme.background};
-  padding: 30px;
-`;
+export default memo(App);
 
-const SafeContainer = styled.SafeAreaView`
-  background-color: ${({ theme }) => theme.background};
-  flex: 1;
-`;
+const Styled = {
+  Container: styled.View`
+    flex: 1;
+    background-color: ${({ theme }) => theme.background};
+    padding: 30px;
+  `,
+  SafeContainer: styled.SafeAreaView`
+    background-color: ${({ theme }) => theme.background};
+    flex: 1;
+  `,
 
-const ToDoInput = styled.TextInput`
-  background-color: ${({ theme }) => theme.white};
-  padding: 15px 20px;
-  border-radius: 30px;
-  margin: 20px 0;
-  font-size: 16px;
-`;
+  ToDoInput: styled.TextInput`
+    background-color: ${({ theme }) => theme.white};
+    padding: 15px 20px;
+    border-radius: 30px;
+    margin: 20px 0;
+    font-size: 16px;
+  `,
+};
