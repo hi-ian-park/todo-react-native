@@ -27,19 +27,6 @@ function App() {
   const changeCurrentTap = (value) => setCurrentTap(value);
   const onChangeText = (payload) => setUserInput(payload);
 
-  const addToDo = async () => {
-    const newToDo = {
-      ...toDos,
-      [currentTap]: [
-        ...toDos[currentTap],
-        { id: Date.now(), userInput, isDone: false },
-      ],
-    };
-    setToDos(newToDo);
-    await saveToDos(newToDo);
-    setUserInput("");
-  };
-
   const saveToDos = async (toSave) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
@@ -60,7 +47,20 @@ function App() {
     }
   };
 
-  const toggleToDoState = async (key) => {
+  const onSubmitToDo = async () => {
+    const newToDo = {
+      ...toDos,
+      [currentTap]: [
+        ...toDos[currentTap],
+        { id: Date.now(), userInput, isDone: false },
+      ],
+    };
+    setToDos(newToDo);
+    await saveToDos(newToDo);
+    setUserInput("");
+  };
+
+  const onCheck = async (key) => {
     const newToDos = {
       ...toDos,
       [currentTap]: toDos[currentTap].map((toDo) => {
@@ -70,7 +70,6 @@ function App() {
         return toDo;
       }),
     };
-
     setToDos(newToDos);
     await saveToDos(newToDos);
 
@@ -84,7 +83,7 @@ function App() {
     }
   };
 
-  const deleteToDo = async (key) => {
+  const onDelete = async (key) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     Alert.alert("Delete To Do", "Are you sure?", [
       { text: "Cancel" },
@@ -105,7 +104,7 @@ function App() {
     }
   };
 
-  const modifyToDo = async ({ key, userInput }) => {
+  const onModify = async ({ key, userInput }) => {
     const newToDos = {
       ...toDos,
       [currentTap]: toDos[currentTap].map((toDo) => {
@@ -136,15 +135,14 @@ function App() {
               onChangeText={onChangeText}
               value={userInput}
               returnKeyType="done"
-              onSubmitEditing={addToDo}
+              onSubmitEditing={onSubmitToDo}
             />
             <ScrollView showsVerticalScrollIndicator={false}>
               <ToDoList
                 toDos={toDos[currentTap]}
-                toggleToDoState={toggleToDoState}
-                // onToggle 로 들어갈 것
-                modifyToDo={modifyToDo}
-                deleteToDo={deleteToDo}
+                onCheck={onCheck}
+                onModify={onModify}
+                onDelete={onDelete}
               />
             </ScrollView>
           </Styled.SafeContainer>

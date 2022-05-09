@@ -4,7 +4,7 @@ import styled from "styled-components/native";
 import ModificationModal from "../Modal/ModificationModal";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 
-const Item = ({ id: key, toDo, toggleToDoState, deleteToDo, modifyToDo }) => {
+const Item = ({ id: key, toDo, onCheck, onDelete, onModify }) => {
   const [modalInfo, setModalInfo] = useState({ visible: false, key: "" });
   const { isDone, userInput } = toDo;
   const pressModifyButton = () => {
@@ -15,7 +15,7 @@ const Item = ({ id: key, toDo, toggleToDoState, deleteToDo, modifyToDo }) => {
   return (
     <>
       <Styled.Container isDone={isDone} onPress={() => pressModifyButton(key)}>
-        <Styled.CheckBox onPress={() => toggleToDoState(key)}>
+        <Styled.CheckBox onPress={() => onCheck(key)}>
           <MaterialCommunityIcons
             name={checkBoxName}
             size={24}
@@ -23,7 +23,7 @@ const Item = ({ id: key, toDo, toggleToDoState, deleteToDo, modifyToDo }) => {
           />
         </Styled.CheckBox>
         <Styled.ToDoText>{userInput}</Styled.ToDoText>
-        <TouchableOpacity onPress={() => deleteToDo(key)}>
+        <TouchableOpacity onPress={() => onDelete(key)}>
           <FontAwesome name="trash" size={20} color="#ff4747" />
         </TouchableOpacity>
       </Styled.Container>
