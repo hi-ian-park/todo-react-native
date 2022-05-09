@@ -1,21 +1,21 @@
-import { useState, useRef } from "react";
+import { memo, useState } from "react";
 import { TouchableOpacity } from "react-native";
+import Modal from "react-native-modal";
 import styled from "styled-components/native";
-import ModificationModal from "../Modal/ModificationModal";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 
-const Item = ({ id: key, toDo, onCheck, onDelete, onModify }) => {
-  const [modalInfo, setModalInfo] = useState({ visible: false, key: "" });
-  const { isDone, userInput } = toDo;
-  const pressModifyButton = () => {
-    setModalInfo({ visible: true, key: key });
-  };
+const Item = ({ toDo, onCheck, onDelete, onModify }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { id, isDone, userInput } = toDo;
+  const openModal = () => setIsModalVisible(true);
+  const closeModal = () => setIsModalVisible(false);
   const checkBoxName = isDone ? "checkbox-marked" : "checkbox-blank-outline";
+  // console.log(`Item Render id: ${toDo.id}`);
 
   return (
     <>
-      <Styled.Container isDone={isDone} onPress={() => pressModifyButton(key)}>
-        <Styled.CheckBox onPress={() => onCheck(key)}>
+      <Styled.Container isDone={isDone} onPress={openModal}>
+        <Styled.CheckBox onPress={() => onCheck(id)}>
           <MaterialCommunityIcons
             name={checkBoxName}
             size={24}
@@ -23,13 +23,42 @@ const Item = ({ id: key, toDo, onCheck, onDelete, onModify }) => {
           />
         </Styled.CheckBox>
         <Styled.ToDoText>{userInput}</Styled.ToDoText>
-        <TouchableOpacity onPress={() => onDelete(key)}>
+        <TouchableOpacity onPress={() => onDelete(id)}>
           <FontAwesome name="trash" size={20} color="#ff4747" />
         </TouchableOpacity>
       </Styled.Container>
+
+      <Styled.ModalLayer>
+        <Modal
+          isVisible={isModalVisible}
+          avoidKeyboard={true}
+          backdropTransitionOutTiming={0}
+          onBackdropPress={closeModal}
+        >
+          <Styled.Container>
+            <Styled.CheckBox onPress={() => onCheck(id)}>
+              <MaterialCommunityIcons
+                name={checkBoxName}
+                size={24}
+                color="#62BB47"
+              />
+            </Styled.CheckBox>
+            <Styled.TextInput
+              value={userInput}
+              autoFocus={true}
+              onChangeText={(userInput) => onModify({ key: id, userInput })}
+            ></Styled.TextInput>
+            <TouchableOpacity onPress={() => onDelete(id)}>
+              <FontAwesome name="trash" size={20} color="#ff4747" />
+            </TouchableOpacity>
+          </Styled.Container>
+        </Modal>
+      </Styled.ModalLayer>
     </>
   );
 };
+
+export default memo(Item);
 
 const Styled = {
   Container: styled.Pressable`
@@ -51,6 +80,16 @@ const Styled = {
     font-weight: 500;
     color: ${({ theme }) => theme.white};
   `,
-};
 
-export default Item;
+  // TODO: as 를 쓰거나 상속받아서 사용할 수 있는지 확인해 볼 것
+  TextInput: styled.TextInput`
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+    color: ${({ theme }) => theme.white};
+  `,
+
+  ModalLayer: styled.View`
+    flex: 1;
+  `,
+};
