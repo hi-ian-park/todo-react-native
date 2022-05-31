@@ -7,7 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "build": "eas build -p all --profile development"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "~1.15.0",
@@ -28,7 +29,8 @@
     "react-native-screens": "~3.10.1",
     "react-native-swipeable-item": "2.0.1",
     "react-native-web": "0.17.1",
-    "styled-components": "^5.3.5"
+    "styled-components": "^5.3.5",
+    "expo-dev-client": "~0.8.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
