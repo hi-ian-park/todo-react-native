@@ -1,4 +1,3 @@
-<script src="http://localhost:8097"></script>;
 // RN, Expo
 import { memo, useState, useEffect, useCallback } from "react";
 import { Alert, ScrollView } from "react-native";
@@ -120,7 +119,6 @@ function App() {
   return (
     <>
       <ThemeProvider theme={{ ...color, ...mixins }}>
-        {/* TODO: 아래 컨테이너 부분 screen 폴더로 빼기 */}
         <Styled.Container>
           <StatusBar style="light" />
           <Styled.SafeContainer>
