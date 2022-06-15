@@ -5,6 +5,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import * as Haptics from "expo-haptics";
 
+// store
+import { types } from "mobx-state-tree";
+import { observer } from "mobx-react";
+
 // style
 import styled from "styled-components/native";
 import { ThemeProvider } from "styled-components";
@@ -15,11 +19,22 @@ import TabMenu from "./components/TabMenu";
 import ToDoList from "./components/ToDo/List";
 import Input from "./components/ToDo/Input";
 
+type ToDos = {
+  work: ToDoItem[];
+  travel: ToDoItem[];
+};
+
+type ToDoItem = {
+  id: number;
+  userInput: string;
+  isDone: boolean;
+};
+
 const STORAGE_KEY = "@toDos";
 
 function App() {
   const [currentTap, setCurrentTap] = useState("work");
-  const [toDos, setToDos] = useState({ work: [], travel: [] });
+  const [toDos, setToDos] = useState<ToDos>({ work: [], travel: [] });
   const changeCurrentTap = (value) => setCurrentTap(value);
 
   const saveToDos = async (toSave) => {
@@ -32,10 +47,8 @@ function App() {
 
   const loadToDos = async () => {
     try {
-      const toDoItems = (await AsyncStorage.getItem(STORAGE_KEY)) || {
-        work: [],
-        travel: [],
-      };
+      const toDoItems =
+        (await AsyncStorage.getItem(STORAGE_KEY)) || JSON.stringify(toDos);
       setToDos(JSON.parse(toDoItems));
     } catch (error) {
       console.log(error);
@@ -52,7 +65,7 @@ function App() {
     };
     setToDos(newToDo);
     await saveToDos(newToDo);
-  });
+  }, []);
 
   const onCheck = useCallback(async (key) => {
     const newToDos = {
@@ -75,7 +88,7 @@ function App() {
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-  });
+  }, []);
 
   const onDelete = useCallback(async (key) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -96,7 +109,7 @@ function App() {
       setToDos(newToDos);
       await saveToDos(newToDos);
     }
-  });
+  }, []);
 
   const onModify = useCallback(async ({ key, userInput }) => {
     const newToDos = {
@@ -110,7 +123,7 @@ function App() {
     };
     setToDos(newToDos);
     await saveToDos(newToDos);
-  });
+  }, []);
 
   useEffect(() => {
     loadToDos();
